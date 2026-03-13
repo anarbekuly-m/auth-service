@@ -8,12 +8,18 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Или ubuntu-latest, если есть доступ к Docker
+    runs-on: self-hosted
+
     steps:
+
       - name: Pull Docker images
         run: |
           sudo docker pull postgres:15
           sudo docker pull anarbekulym/auth-service:latest
+
+      - name: Create Docker network
+        run: |
+          sudo docker network create hiking-network || true
 
       - name: Stop old containers
         run: |
@@ -24,27 +30,22 @@ jobs:
         run: |
           sudo docker run -d \
             --name hiking_postgres \
+            --network hiking-network \
             -e POSTGRES_DB=hiking_db \
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=1234 \
             -p 5433:5432 \
             postgres:15
 
-      - name: Wait for Postgres to be ready
+      - name: Wait for Postgres
         run: |
-          for i in {1..20}; do
-            if sudo docker exec hiking_postgres pg_isready -U postgres; then
-              echo "Postgres is ready"
-              break
-            fi
-            echo "Waiting for Postgres..."
-            sleep 3
-          done
+          sleep 10
 
       - name: Start Auth Service
         run: |
           sudo docker run -d \
             --name auth-service-container \
+            --network hiking-network \
             -p 8080:8080 \
             -e SPRING_DATASOURCE_URL=jdbc:postgresql://hiking_postgres:5432/hiking_db \
             -e SPRING_DATASOURCE_USERNAME=postgres \
