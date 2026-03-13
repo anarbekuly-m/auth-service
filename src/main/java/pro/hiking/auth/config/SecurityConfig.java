@@ -20,16 +20,18 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // 🔹 Основной SecurityFilterChain
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                // Включаем CORS с указанием конкретного фронта
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("*")); // Разрешаем все источники (для Web)
+                    config.setAllowedOrigins(List.of("http://localhost:65053")); // твой фронт
                     config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
-                    config.setAllowCredentials(true);
+                    config.setAllowCredentials(true); // важно для авторизации
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
@@ -40,13 +42,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔹 Дополнительный CorsFilter (опционально, для безопасности)
+    // 🔹 Дополнительный CorsFilter (для надежности)
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
+        config.addAllowedOrigin("http://localhost:65053"); // твой фронт
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
