@@ -11,35 +11,32 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class SecurityConfig {
 
-    // Кодирование паролей для авторизации, если понадобится
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Основной Security конфиг
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // отключаем CSRF, чтобы Swagger и POSTMAN работали
+                .csrf(csrf -> csrf.disable()) // отключаем CSRF
+                .headers(headers -> headers.frameOptions(frame -> frame.disable())) // отключаем DENY для Swagger UI
                 .authorizeHttpRequests(auth -> auth
-                        // Разрешаем Swagger UI и API docs без аутентификации
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // Остальные endpoint'ы тоже разрешаем для теста
-                        .anyRequest().permitAll()
-                );
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Swagger открываем
+                        .anyRequest().permitAll() // остальные endpoint'ы тоже открыты
+                )
+                .httpBasic(httpBasic -> httpBasic.disable()); // отключаем basic auth
 
         return http.build();
     }
 
-    // Разрешаем CORS для всех доменов (Swagger UI и внешние запросы)
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // все endpoint'ы
-                        .allowedOrigins("*") // любой домен
+                registry.addMapping("/**")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
             }
