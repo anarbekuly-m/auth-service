@@ -11,61 +11,14 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # --- 1. Checkout репозитория (твой nginx.conf будет доступен) ---
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- 2. Очистка старых контейнеров и образdов ---
-      - name: Cleanup old Docker containers and images
+      # В Docker Compose билд происходит автоматически, если указано build: .
+      - name: Deploy Services
         run: |
-          sudo docker system prune -a -f
+          sudo docker compose up -d --build --remove-orphans
 
-      # --- 3. Создание Docker сети ---
-      - name: Create Docker network
-        run: sudo docker network create hiking-network || true
-
-      # --- 4. Остановка старых контейнеров ---
-      - name: Stop old containers
+      - name: Cleanup old images
         run: |
-          sudo docker rm -f auth-service-container || true
-          sudo docker rm -f hiking_postgres || true
-          sudo docker rm -f hiking_nginx || true
-
-      # --- 5. Проверка и создание volume для Postgres ---
-      - name: Ensure Postgres volume exists
-        run: sudo docker volume create hiking_postgres_data || true
-
-      # --- 6. Запуск Postgres ---
-      - name: Start Postgres container
-        run: |
-          sudo docker run -d \
-            --name hiking_postgres \
-            --network hiking-network \
-            -v hiking_postgres_data:/var/lib/postgresql/data \
-            -e POSTGRES_DB=hiking_db \
-            -e POSTGRES_USER=postgres \
-            -e POSTGRES_PASSWORD=1234 \
-            -p 5433:5432 \
-            postgres:15
-
-      # --- 7. Ждём пока Postgres станет доступен ---
-      - name: Wait for Postgres to be ready
-        run: |
-          until sudo docker exec hiking_postgres pg_isready -U postgres; do
-            echo "Waiting for Postgres..."
-            sleep 2
-          done
-
-      # --- 8. Запуск Auth Service ---
-      - name: Start Auth Service container
-        run: |
-          sudo docker run -d \
-            --name auth-service-container \
-            --network hiking-network \
-            -p 8080:8080 \
-            -e SPRING_DATASOURCE_URL=jdbc:postgresql://hiking_postgres:5432/hiking_db \
-            -e SPRING_DATASOURCE_USERNAME=postgres \
-            -e SPRING_DATASOURCE_PASSWORD=1234 \
-            -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
-            -e SPRING_SERVER_ADDRESS=0.0.0.0 \
-            anarbekulym/auth-service:latest
+          sudo docker image prune -f
