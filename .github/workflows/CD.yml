@@ -75,5 +75,5 @@ jobs:
             --name hiking_nginx \
             --network hiking-network \
             -p 80:80 \
-            -v /home/runner/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
+            -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro
             nginx:latest
