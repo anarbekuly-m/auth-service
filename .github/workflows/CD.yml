@@ -12,36 +12,49 @@ jobs:
 
     steps:
 
-      - name: Pull Docker images
+      # --- CLEANUP STEP ---
+      - name: Cleanup old Docker containers and images
         run: |
-          sudo docker pull postgres:15
-          sudo docker pull anarbekulym/auth-service:latest
+          sudo docker system prune -a -f
+          # do NOT prune volumes to keep DB safe
 
+      # --- CREATE NETWORK ---
       - name: Create Docker network
-        run: |
-          sudo docker network create hiking-network || true
+        run: sudo docker network create hiking-network || true
 
+      # --- STOP OLD CONTAINERS ---
       - name: Stop old containers
         run: |
           sudo docker rm -f auth-service-container || true
           sudo docker rm -f hiking_postgres || true
 
-      - name: Start Postgres
+      # --- CREATE NAMED VOLUME (if not exists) ---
+      - name: Ensure Postgres volume exists
+        run: sudo docker volume create hiking_postgres_data || true
+
+      # --- START POSTGRES ---
+      - name: Start Postgres container
         run: |
           sudo docker run -d \
             --name hiking_postgres \
             --network hiking-network \
+            -v hiking_postgres_data:/var/lib/postgresql/data \
             -e POSTGRES_DB=hiking_db \
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=1234 \
             -p 5433:5432 \
             postgres:15
 
-      - name: Wait for Postgres
+      # --- WAIT FOR POSTGRES HEALTH ---
+      - name: Wait for Postgres to be ready
         run: |
-          sleep 10
+          until sudo docker exec hiking_postgres pg_isready -U postgres; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
 
-      - name: Start Auth Service
+      # --- START AUTH SERVICE ---
+      - name: Start Auth Service container
         run: |
           sudo docker run -d \
             --name auth-service-container \
