@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 @Configuration
 public class SecurityConfig {
 
-    // 🔹 Bean для хеширования паролей.CHangeefdfв
+    // 🔹 Bean для хеширования паролей.CHangeefdffв
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
