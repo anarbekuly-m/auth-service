@@ -11,20 +11,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class SecurityConfig {
 
-    // Кодирование паролей для авторизации
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Основной Security конфиг
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // отключаем CSRF
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.disable()) // 🔑 отключаем DENY, чтобы Swagger UI работал
-                )
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                .httpBasic(httpBasic -> httpBasic.disable())  // отключаем Basic Auth
+                .formLogin(form -> form.disable())           // отключаем форму логина
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().permitAll()
@@ -33,7 +31,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // CORS для всех доменов и методов
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
