@@ -1,8 +1,23 @@
-# Keep your Stage 1 as it is...
+# СТАДИЯ 1: Сборка (Build)
+# Используем тяжелый образ с Maven только для компиляции
+FROM maven:3.9-eclipse-temurin-17 AS builder
+WORKDIR /app
 
-# Stage 2: Change to Alpine (much smaller image)
+# Кэшируем зависимости (чтобы каждый раз не качать весь интернет)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Копируем код и собираем JAR
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# СТАДИЯ 2: Запуск (Runtime)
+# Используем максимально легкий образ только с Java (JRE)
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+
+# Копируем только готовый JAR из первой стадии
 COPY --from=builder /app/target/*.jar app.jar
+
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
