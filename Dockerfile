@@ -1,19 +1,8 @@
-# Этап 1: Собираем проект (используем образ с Maven и Java 17)
-FROM maven:3.9-eclipse-temurin-17 AS builder
-WORKDIR /app
-# Сначала копируем только pom.xml для кэширования зависимостей
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-# Копируем исходный код и собираем .jar файл
-COPY src ./src
-RUN mvn clean package -DskipTests
+# Keep your Stage 1 as it is...
 
-# Этап 2: Запускаем проект (чистый образ только с Java 17)
-FROM eclipse-temurin:17-jdk
+# Stage 2: Change to Alpine (much smaller image)
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-# Копируем готовый .jar из первого этапа
 COPY --from=builder /app/target/*.jar app.jar
-# Открываем порт 8080
 EXPOSE 8080
-# Запускаем сервер
 ENTRYPOINT ["java", "-jar", "app.jar"]
