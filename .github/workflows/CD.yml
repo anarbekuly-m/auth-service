@@ -69,13 +69,3 @@ jobs:
             -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
             -e SPRING_SERVER_ADDRESS=0.0.0.0 \
             anarbekulym/auth-service:latest
-
-      # --- 9. Запуск NGINX (используем файл из репозитория) ---
-      - name: Start NGINX container
-        run: |
-          sudo docker run -d \
-            --name hiking_nginx \
-            --network hiking-network \
-            -p 80:80 \
-            -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
-            nginx:latest
