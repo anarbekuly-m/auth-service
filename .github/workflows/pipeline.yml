@@ -1,9 +1,8 @@
-name: CD
+name: Continuous Deployment
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
+    branches: [ "main" ]
 
 jobs:
   build-and-push:
@@ -22,13 +21,14 @@ jobs:
         with:
           context: .
           push: true
-          tags: anarbekulym/auth-service:latest
+          # Используем секрет, чтобы не хардкодить имя
+          tags: ${{ secrets.DOCKER_USERNAME }}/auth-service:latest
 
   deploy:
     needs: build-and-push
     runs-on: self-hosted
     steps:
-      - name: Checkout repo (for docker-compose.yml)
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Pull and Restart
