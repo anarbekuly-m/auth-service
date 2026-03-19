@@ -3,9 +3,9 @@ version: '3.9'
 services:
   postgres:
     image: postgres:15
-    container_name: hiking_postgres
+    container_name: shyn_postgres
     environment:
-      POSTGRES_DB: hiking_db
+      POSTGRES_DB: shyn_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
@@ -15,11 +15,11 @@ services:
 
   auth-service:
     build: .
-    container_name: hiking_auth_service
+    container_name: shyn_auth_service
     ports:
       - "8080:8080"  # порт внутри контейнераf
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hiking_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shyn_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -28,7 +28,7 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: hiking_nginx
+    container_name: shyn_nginx
     ports:
       - "80:80"
     volumes:

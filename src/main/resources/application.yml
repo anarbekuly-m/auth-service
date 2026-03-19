@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/hiking_db
+    url: jdbc:postgresql://localhost:5432/shyn_db
     username: postgres
     password: 12345678
 
