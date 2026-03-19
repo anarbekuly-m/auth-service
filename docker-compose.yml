@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   auth-service:
-    build: .
+    image: anarbekulym/auth-service:latest
     container_name: shyn_auth_service
     ports:
       - "8080:8080"  # порт внутри контейнераf
