@@ -13,7 +13,7 @@ RUN mvn clean package -DskipTests
 
 # СТАДИЯ 2: Запуск (Runtime)
 # Используем максимально легкий образ только с Javda (JRE)
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Копируем только готовый JAR из первой стадии

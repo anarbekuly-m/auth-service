@@ -1,4 +1,4 @@
-package pro.hiking.auth.security;
+package pro.hiking.auth.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

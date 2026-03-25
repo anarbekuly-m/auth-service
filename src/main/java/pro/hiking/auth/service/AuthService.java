@@ -1,15 +1,12 @@
 package pro.hiking.auth.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import pro.hiking.auth.dto.LoginRequest;
 import pro.hiking.auth.dto.RegisterRequest;
 import pro.hiking.auth.entity.User;
 import pro.hiking.auth.repository.UserRepository;
-import pro.hiking.auth.security.JwtService;
 
 @Service
 @RequiredArgsConstructor
