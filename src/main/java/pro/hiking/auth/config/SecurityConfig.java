@@ -33,7 +33,6 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register", "/oauth2/**", "/error", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults())
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oauth2SuccessHandler) // Теперь это сработает!
