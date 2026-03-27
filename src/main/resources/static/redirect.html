@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting to Shyn...</title>
+</head>
+<body>
+<script>
+    // Достаем токен из параметров текущего URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+        // Формируем Deep Link
+        const deepLink = "shynapp://login-callback?token=" + token;
+
+        // Пытаемся открыть приложение
+        window.location.href = deepLink;
+
+        // Если приложение не открылось за 2 секунды (например, не установлено),
+        // даем пользователю кнопку для ручного перехода
+        setTimeout(() => {
+            document.body.innerHTML = `
+                    <div style="text-align:center; margin-top:50px; font-family: sans-serif;">
+                        <h2>Почти готово!</h2>
+                        <p>Если приложение не открылось автоматически, нажмите кнопку ниже:</p>
+                        <a href="${deepLink}" style="padding:10px 20px; background:#4CAF50; color:white; text-decoration:none; border-radius:5px;">Вернуться в Shyn</a>
+                    </div>
+                `;
+        }, 2000);
+    } else {
+        document.body.innerHTML = "Ошибка: Токен не найден.";
+    }
+</script>
+</body>
+</html>

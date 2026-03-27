@@ -22,23 +22,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        // 1. Извлекаем данные пользователя из Google/Facebook
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
-
-        // 2. Генерируем твой внутренний JWT токен
         String token = jwtService.generateToken(email);
 
-        // 3. Формируем URL для редиректа в мобильное приложение
-        // Схема: shynapp://
-        // Хост: login-callback
-        String targetUrl = UriComponentsBuilder.fromUriString("shynapp://login-callback")
+        // Редиректим на наш HTML файл на домене shyn-api.site
+        String targetUrl = UriComponentsBuilder.fromUriString("https://shyn-api.site/api/auth/redirect.html")
                 .queryParam("token", token)
                 .build()
-                .encode()
                 .toUriString();
 
-        // 4. Выполняем редирект
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
