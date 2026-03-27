@@ -27,7 +27,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String token = jwtService.generateToken(email);
 
         // Редиректим на наш HTML файл на домене shyn-api.site
-        String targetUrl = UriComponentsBuilder.fromUriString("https://shyn-api.site/api/auth/redirect.html")
+        String targetUrl = UriComponentsBuilder.fromUriString("shynapp://login-callback")
                 .queryParam("token", token)
                 .build()
                 .toUriString();
