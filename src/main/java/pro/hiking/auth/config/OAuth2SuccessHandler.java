@@ -22,20 +22,23 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        // Получаем данные пользователя от Google
+        // 1. Извлекаем данные пользователя из Google/Facebook
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
 
-        // Генерируем твой JWT токен
+        // 2. Генерируем твой внутренний JWT токен
         String token = jwtService.generateToken(email);
 
-        // Для Flutter нам нужно передать токен.
-        // Пока мы тестируем в браузере, перенаправим на URL с параметром.
-        // Потом во Flutter ты этот токен просто выцепишь из URL.
-        String targetUrl = UriComponentsBuilder.fromUriString("/api/auth/swagger-ui/index.html")
+        // 3. Формируем URL для редиректа в мобильное приложение
+        // Схема: shynapp://
+        // Хост: login-callback
+        String targetUrl = UriComponentsBuilder.fromUriString("shynapp://login-callback")
                 .queryParam("token", token)
-                .build().toUriString();
+                .build()
+                .encode()
+                .toUriString();
 
+        // 4. Выполняем редирект
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
