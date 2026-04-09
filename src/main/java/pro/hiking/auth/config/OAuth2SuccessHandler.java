@@ -31,6 +31,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .queryParam("token", token)
                 .build()
                 .toUriString();
+        //http://localhost:8080/swagger-ui/index.html
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }

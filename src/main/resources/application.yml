@@ -22,6 +22,24 @@ spring:
               - email
               - profile
 
+
+# Добавляем блок Swagger/OpenAPI
+springdoc:
+  swagger-ui:
+    # Тот самый выпадающий список сервисов
+    urls:
+      - name: 🔐 Auth Service
+        url: /api/auth/v3/api-docs
+      - name: 🏔️ Routes Service
+        url: /api/routes/v3/api-docs
+    # Сохраняет Bearer токен при перезагрузке страницы (мега-удобно)
+    persist-authorization: true
+    # Сортирует эндпоинты по алфавиту
+    operations-sorter: alpha
+  # Важно: чтобы Swagger правильно понимал пути через Nginx
+  api-docs:
+    path: /v3/api-docs
+
 management:
   endpoints:
     web:
