@@ -16,7 +16,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    // Регистрация пользователя
     public User register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
@@ -25,13 +24,12 @@ public class AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // хешируем пароль
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
         return userRepository.save(user);
     }
 
-    // Логин пользователя
     public String login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -40,6 +38,7 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return jwtService.generateToken(user.getEmail(), user.getId());
+        // ОБНОВЛЕНО: передаём username в токен
+        return jwtService.generateToken(user.getEmail(), user.getId(), user.getUsername());
     }
 }

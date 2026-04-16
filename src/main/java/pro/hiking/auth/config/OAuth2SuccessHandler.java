@@ -19,7 +19,7 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final UserRepository userRepository; // НОВОЕ: инжектим репозиторий
+    private final UserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -28,19 +28,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
 
-        // НОВОЕ: находим пользователя в базе по email, чтобы получить его ID
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found after Google login"));
 
-        // ИЗМЕНЕНО: генерируем токен с email и id
-        String token = jwtService.generateToken(email, user.getId());
+        // ОБНОВЛЕНО: передаём username в токен
+        String token = jwtService.generateToken(email, user.getId(), user.getUsername());
 
-        // Редиректим на наш HTML файл на домене shyn-api.site
         String targetUrl = UriComponentsBuilder.fromUriString("shynapp://login-callback")
                 .queryParam("token", token)
                 .build()
                 .toUriString();
-        //http://localhost:8080/swagger-ui/index.html
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }

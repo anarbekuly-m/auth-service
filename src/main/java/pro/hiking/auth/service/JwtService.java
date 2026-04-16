@@ -16,18 +16,18 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    public String generateToken(String email, Long userId) {
-
+    // ОБНОВЛЕНО: теперь принимает username и кладёт его в токен
+    public String generateToken(String email, Long userId, String username) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("userId", userId) // ИЗМЕНЕНО: добавили claim с ID
+                .claim("userId", userId)
+                .claim("username", username) // НОВОЕ: имя пользователя в токене
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // НОВОЕ: метод для извлечения ID (понадобится в контроллере треков)
     public Long extractUserId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getKey())
@@ -46,4 +46,13 @@ public class JwtService {
                 .getSubject();
     }
 
+    // НОВОЕ: извлечение username из токена
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("username", String.class);
+    }
 }
